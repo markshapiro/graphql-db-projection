@@ -44,7 +44,6 @@ const UserType = new GraphQLObjectType({
   name: 'UserType',
   fields: {
     name: { type: GraphQLString },
-    username: { type: GraphQLString },
     email: { type: GraphQLString },
     address: {
       type: new GraphQLObjectType({
@@ -59,11 +58,11 @@ const UserType = new GraphQLObjectType({
   },
 });
 ```
-then the following query
+then the following query:
 ```
 query($id: String){
   user (id:$id){
-    username
+    name
     address {
       city
       street
@@ -75,7 +74,7 @@ will produce `projection`:
 ```
 { 
   username: 1,
-  address: {city:1, street:1}
+  address: { city: 1, street: 1 }
 }
 ```
 now you can use it to fetch fields, for example for mongoDB:
@@ -85,7 +84,7 @@ import { toMongoProjection } from 'graphql-db-projection';
 resolve(root, args, ctx, info) {
   const projection = makeProjection(info);
   const mongoProjection = toMongoProjection(projection)
-  return db.collection('users').findOne({_id: ObjectId(args._id)}, mongoProjection)
+  return db.collection('users').findOne({_id: ObjectId(args._id)}, mongoProjection);
 }
 ```
 
