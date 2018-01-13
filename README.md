@@ -130,4 +130,4 @@ fetching every user fields will result in projection:
   lastname: 1
 }
 ```
-and fetching posts will continue producing projection given inner postInfo variable.
+and fetching posts will continue producing projection for posts.
