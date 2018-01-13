@@ -45,7 +45,7 @@ const UserType = new GraphQLObjectType({
   fields: {
     firstName: { type: GraphQLString },
     lastName: { type: GraphQLString },
-    email: { type: GraphQLString },
+    username: { type: GraphQLString },
     address: {
       type: new GraphQLObjectType({
         name: 'UserType',
@@ -100,12 +100,12 @@ new GraphQLObjectType({
     // ...
     displayName: {
       type: GraphQLString,
-      projection: 'username'    //will rename the field 'username'
+      projection: 'username'    // will rename the field 'username'
     },
     fullName: {
       type: GraphQLString,
       resolve: root => `${user.firstName} ${user.lastName}`,
-      projection: ['firstName', 'lastName']    //will replace with 'firstname': 1 and 'lastName': 1
+      projection: ['firstName', 'lastName']    // will replace with 'firstname': 1 and 'lastName': 1
     },
     posts: {
       type: new GraphQLList(PostType),
@@ -116,11 +116,18 @@ new GraphQLObjectType({
         return db.collection('posts').findOne({postedBy: root.id}, mongoProjection);
       },
       
-      //if data is outside of this db object and you don't need any fields for this, will omit this field:
+      // if data is outside of this db object and you don't need any fields for this, will omit this field:
       projection: []
     }
   },
 })
 ```
-
-
+fetching every user fields will result in projection:
+```
+{ 
+  username: 1,
+  firstname: 1,
+  lastname: 1
+}
+```
+and fetching posts will continue producing projection given inner postInfo variable.
