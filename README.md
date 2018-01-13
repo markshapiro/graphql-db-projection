@@ -109,12 +109,14 @@ new GraphQLObjectType({
     },
     posts: {
       type: new GraphQLList(PostType),
+      
       resolve: (root, args, ctx, info) => {
         const projectionOfPost = makeProjection(info);
         const mongoProjection = toMongoProjection(projection)
         return db.collection('posts').findOne({postedBy: root.id}, mongoProjection);
       },
-      //if data is outside of db object and you don't need any fields for this, will omit this field:
+      
+      //if data is outside of this db object and you don't need any fields for this, will omit this field:
       projection: []
     }
   },
