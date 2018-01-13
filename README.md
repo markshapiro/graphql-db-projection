@@ -43,7 +43,8 @@ and suppose the `UserType` is:
 const UserType = new GraphQLObjectType({
   name: 'UserType',
   fields: {
-    username: { type: GraphQLString },
+    firstName: { type: GraphQLString },
+    lastName: { type: GraphQLString },
     email: { type: GraphQLString },
     address: {
       type: new GraphQLObjectType({
@@ -62,7 +63,7 @@ then the following query:
 ```
 query($id: String){
   user (id:$id){
-    username
+    firstName
     address {
       city
       street
@@ -73,7 +74,7 @@ query($id: String){
 will produce `projection`:
 ```
 { 
-  username: 1,
+  firstName: 1,
   address: { city: 1, street: 1 }
 }
 ```
@@ -84,8 +85,40 @@ import { toMongoProjection } from 'graphql-db-projection';
 resolve(root, args, ctx, info) {
   const projection = makeProjection(info);
   const mongoProjection = toMongoProjection(projection)
-  return db.collection('users').findOne({_id: ObjectId(args._id)}, mongoProjection);
+  return db.collection('users').findOne({id: ObjectId(args.id)}, mongoProjection);
 }
 ```
 
-## Advanced Usage
+## Custom Projections
+If the graphql field is called differently in db or you need multiple fields form db to resolve it,
+<br/>then you can provide `projection` parameter, either string or array of strings, or empty array if you want to ignore it:
+```js
+// ...
+new GraphQLObjectType({
+  name: 'UserType',
+  fields: {
+    // ...
+    displayName: {
+      type: GraphQLString,
+      projection: 'username'    //will rename the field 'username'
+    },
+    fullName: {
+      type: GraphQLString,
+      resolve: root => `${user.firstName} ${user.lastName}`,
+      projection: ['firstName', 'lastName']    //will replace with 'firstname': 1 and 'lastName': 1
+    },
+    posts: {
+      type: new GraphQLList(PostType),
+      resolve: (root, args, ctx, info) => {
+        const projectionOfPost = makeProjection(info);
+        const mongoProjection = toMongoProjection(projection)
+        return db.collection('posts').findOne({postedBy: root.id}, mongoProjection);
+      },
+      //if data is outside of db object and you don't need any fields for this, will omit this field:
+      projection: []
+    }
+  },
+})
+```
+
+
