@@ -43,7 +43,7 @@ and suppose the `UserType` is:
 const UserType = new GraphQLObjectType({
   name: 'UserType',
   fields: {
-    name: { type: GraphQLString },
+    username: { type: GraphQLString },
     email: { type: GraphQLString },
     address: {
       type: new GraphQLObjectType({
@@ -62,7 +62,7 @@ then the following query:
 ```
 query($id: String){
   user (id:$id){
-    name
+    username
     address {
       city
       street
