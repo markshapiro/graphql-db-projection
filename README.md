@@ -111,12 +111,12 @@ new GraphQLObjectType({
       type: new GraphQLList(PostType),
       
       resolve: (root, args, ctx, info) => {
-        const projectionOfPost = makeProjection(info);
+        const projectionOfPost = makeProjection(info);  //you can continue projecting posts fields
         const mongoProjection = toMongoProjection(projection)
         return db.collection('posts').findOne({ postedBy: root.id }, mongoProjection);
       },
       
-      // if data is outside of this db object and you don't need any fields for this, will omit this field:
+      // if posts data is outside of this object and you don't need any fields for this, will omit this field:
       projection: []
     }
   },
@@ -130,4 +130,4 @@ requesting these fields will result in projection:
   lastname: 1
 }
 ```
-and fetching posts will continue producing projection for posts.
+and you can make posts projection using requested fields of posts (in user query) in their resolve method.
