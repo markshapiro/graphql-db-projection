@@ -122,7 +122,7 @@ new GraphQLObjectType({
   },
 })
 ```
-fetching every user fields will result in projection:
+requesting these fields will result in projection:
 ```
 { 
   username: 1,
