@@ -1,6 +1,7 @@
 # graphql-db-projection
 
-Creates object that describes the fields needed to fetch from db. Supports lists, nested queries and fragments.
+Given Graphql query, creates db fields projection to fetch only fields that are required.
+<br/>Supports lists, nested queries and fragments.
 
 ## Installation
 
