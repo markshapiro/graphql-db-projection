@@ -113,7 +113,7 @@ new GraphQLObjectType({
       resolve: (root, args, ctx, info) => {
         const projectionOfPost = makeProjection(info);
         const mongoProjection = toMongoProjection(projection)
-        return db.collection('posts').findOne({postedBy: root.id}, mongoProjection);
+        return db.collection('posts').findOne({ postedBy: root.id }, mongoProjection);
       },
       
       // if data is outside of this db object and you don't need any fields for this, will omit this field:
