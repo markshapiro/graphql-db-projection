@@ -116,7 +116,8 @@ new GraphQLObjectType({
         return db.collection('posts').findOne({ postedBy: root.id }, mongoProjection);
       },
       
-      // if posts data is outside of this object and you don't need any fields for this, will omit this field:
+      // if posts data is outside of this object and you don't need any fields for this.
+      // Will omit this field:
       projection: []
     }
   },
