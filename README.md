@@ -32,7 +32,8 @@ import makeProjection from 'graphql-db-projection';
       resolve: (root, { id }, request, info) => {
         const projection = makeProjection(info);
         
-        // now you can use projection to know what are the only fields you need from db.
+        // now you can use projection to know what are the only
+        // fields you need from db.
         // ...
       },
     }
@@ -100,24 +101,25 @@ new GraphQLObjectType({
     // ...
     displayName: {
       type: GraphQLString,
-      projection: 'username'    // will rename the field 'username'
+      projection: 'username'  // will rename the field 'username'
     },
     fullName: {
       type: GraphQLString,
       resolve: root => `${user.firstName} ${user.lastName}`,
-      projection: ['firstName', 'lastName']    // will replace with 'firstname': 1 and 'lastName': 1
+      // will replace with 'firstname': 1 and 'lastName': 1
+      projection: ['firstName', 'lastName']
     },
     posts: {
       type: new GraphQLList(PostType),
       
       resolve: (root, args, ctx, info) => {
-        const projectionOfPost = makeProjection(info);  // you can continue projecting posts fields
+        const projectionOfPost = makeProjection(info);
         const mongoProjection = toMongoProjection(projection)
         return db.collection('posts').find({ postedBy: root.id }, mongoProjection).toArray();
       },
       
-      // if posts data is outside of this object and you don't need any fields for this.
-      // will omit this field:
+      // if posts data is outside of this object and you don't
+      // need any fields for this, will omit this field:
       projection: []
     }
   },
