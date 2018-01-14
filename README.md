@@ -111,7 +111,7 @@ new GraphQLObjectType({
       type: new GraphQLList(PostType),
       
       resolve: (root, args, ctx, info) => {
-        const projectionOfPost = makeProjection(info);  //you can continue projecting posts fields
+        const projectionOfPost = makeProjection(info);  // you can continue projecting posts fields
         const mongoProjection = toMongoProjection(projection)
         return db.collection('posts').findOne({ postedBy: root.id }, mongoProjection);
       },
