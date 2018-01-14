@@ -117,7 +117,7 @@ new GraphQLObjectType({
       },
       
       // if posts data is outside of this object and you don't need any fields for this.
-      // Will omit this field:
+      // will omit this field:
       projection: []
     }
   },
