@@ -114,7 +114,7 @@ new GraphQLObjectType({
       
       resolve: (root, args, ctx, info) => {
         const projectionOfPost = makeProjection(info);
-        const mongoProjection = toMongoProjection(projection)
+        const mongoProjection = toMongoProjection(projectionOfPost)
         return db.collection('posts')
             .find({ postedBy: root.id }, mongoProjection).toArray();
       },
