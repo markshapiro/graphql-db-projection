@@ -91,9 +91,6 @@ export default function projector(
         });
         return;
       }
-      if (field.resolve) {
-        return;
-      }
       // if complex type
       if (selection.selectionSet) {
         projection[fieldName] = {};
