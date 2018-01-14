@@ -85,7 +85,7 @@ import { toMongoProjection } from 'graphql-db-projection';
 resolve(root, args, ctx, info) {
   const projection = makeProjection(info);
   const mongoProjection = toMongoProjection(projection)
-  return db.collection('users').findOne({id: ObjectId(args.id)}, mongoProjection);
+  return db.collection('users').findOne(args.id, mongoProjection);
 }
 ```
 
