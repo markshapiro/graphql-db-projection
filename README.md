@@ -127,8 +127,8 @@ requesting these fields will result in projection:
 ```
 { 
   username: 1,
-  firstname: 1,
-  lastname: 1
+  firstName: 1,
+  lastName: 1
 }
 ```
 and you can make posts projection using requested fields of posts (in user query) in their resolve method.
