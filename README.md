@@ -48,7 +48,7 @@ const UserType = new GraphQLObjectType({
     username: { type: GraphQLString },
     address: {
       type: new GraphQLObjectType({
-        name: 'UserType',
+        name: 'AddressType',
         fields: {
           country: { type: GraphQLString },
           city: { type: GraphQLString },
