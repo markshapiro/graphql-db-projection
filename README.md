@@ -91,7 +91,7 @@ resolve(root, args, ctx, info) {
 ```
 
 ## Custom Projections
-If the graphql field is called differently in db or you need multiple fields from db to resolve it,
+If the Graphql field is called differently in db or you need multiple fields from db to resolve it,
 <br/>then you can provide `projection` parameter, either string or array of strings, or empty array if you want to ignore it:
 ```js
 // ...
@@ -101,7 +101,7 @@ new GraphQLObjectType({
     // ...
     displayName: {
       type: GraphQLString,
-      projection: 'username'  // will rename the field 'username'
+      projection: 'username'  // will rename the field to 'username'
     },
     fullName: {
       type: GraphQLString,
