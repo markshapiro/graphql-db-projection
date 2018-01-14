@@ -106,7 +106,7 @@ new GraphQLObjectType({
     fullName: {
       type: GraphQLString,
       resolve: root => `${user.firstName} ${user.lastName}`,
-      // will replace with 'firstname': 1 and 'lastName': 1
+      // will replace with 'firstName': 1 and 'lastName': 1
       projection: ['firstName', 'lastName']
     },
     posts: {
