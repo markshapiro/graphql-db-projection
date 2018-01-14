@@ -61,8 +61,8 @@ const UserType = new GraphQLObjectType({
 ```
 then the following query:
 ```
-query($id: String){
-  user (id:$id){
+query ($id: String){
+  user (id: $id){
     firstName
     address {
       city
