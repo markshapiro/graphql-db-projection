@@ -113,7 +113,7 @@ new GraphQLObjectType({
       resolve: (root, args, ctx, info) => {
         const projectionOfPost = makeProjection(info);  // you can continue projecting posts fields
         const mongoProjection = toMongoProjection(projection)
-        return db.collection('posts').findOne({ postedBy: root.id }, mongoProjection);
+        return db.collection('posts').find({ postedBy: root.id }, mongoProjection).toArray();
       },
       
       // if posts data is outside of this object and you don't need any fields for this.
