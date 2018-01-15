@@ -100,6 +100,7 @@ new GraphQLObjectType({
     // ...
     displayName: {
       type: GraphQLString,
+      resolve: root => user.username,
       projection: 'username'  // will add 'username' to pojection
     },
     fullName: {
@@ -125,12 +126,13 @@ new GraphQLObjectType({
   },
 })
 ```
-requesting these fields will result in projection:
+requesting these fields in Graphql query will result in projection:
 ```
 { 
   username: 1,
   firstName: 1,
   lastName: 1
+  // but not posts
 }
 ```
 and you can make posts projection using requested fields of posts (in user query) in their resolve method.
