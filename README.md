@@ -91,8 +91,7 @@ resolve(root, args, ctx, info) {
 ```
 
 ## Custom Projections
-If the Graphql field is called differently in db or you need multiple fields from db to resolve it,
-<br/>then you can provide `projection` parameter, either string or array of strings, or empty array if you want to ignore it:
+If Graphql field is mapped to db field with different name, or you need multiple fields from db to compute its value, then you can provide `projection` parameter that specifies db fields you need, it can be string, array of strings, or empty array if you want to ignore it:
 ```js
 // ...
 new GraphQLObjectType({
@@ -101,12 +100,12 @@ new GraphQLObjectType({
     // ...
     displayName: {
       type: GraphQLString,
-      projection: 'username'  // will rename the field to 'username'
+      projection: 'username'  // will add 'username' to pojection
     },
     fullName: {
       type: GraphQLString,
       resolve: root => `${user.firstName} ${user.lastName}`,
-      // will replace with 'firstName': 1 and 'lastName': 1
+      // will add 'firstName' and 'lastName' to projection
       projection: ['firstName', 'lastName']
     },
     posts: {
@@ -119,8 +118,8 @@ new GraphQLObjectType({
             .find({ postedBy: root.id }, mongoProjection).toArray();
       },
       
-      // if posts data is outside of this object and you don't
-      // need any fields for this, will omit this field:
+      // if data of user post collection is outside of this object
+      // and you don't need any fields for this, will omit this field:
       projection: []
     }
   },
