@@ -48,6 +48,7 @@ export const UserType = new GraphQLObjectType({
     email: { type: new GraphQLNonNull(GraphQLString) },
     address: {
       type: AddressType,
+      alias: 'location',
     },
     favorites: {
       type: new GraphQLList(FilmType),

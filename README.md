@@ -1,6 +1,6 @@
 # graphql-db-projection
 
-Given Graphql query, creates db fields projection to fetch only fields that are required.
+Given GraphQL query, creates db fields projection to fetch only fields that are required.
 <br/>Supports lists, nested queries and fragments.
 
 ## Installation
@@ -29,7 +29,7 @@ import makeProjection from 'graphql-db-projection';
           type: GraphQLString,
         },
       },
-      resolve: (root, { id }, request, info) => {
+      resolve: (user, { id }, request, info) => {
         const projection = makeProjection(info);
         
         // now you can use projection to know what are the only
@@ -83,7 +83,7 @@ now you can use it to fetch fields, for example for mongoDB:
 ```js
 import { toMongoProjection } from 'graphql-db-projection';
 // ...
-resolve(root, args, ctx, info) {
+resolve(user, args, ctx, info) {
   const projection = makeProjection(info);
   const mongoProjection = toMongoProjection(projection)
   return db.collection('users').findOne(args.id, mongoProjection);
@@ -91,7 +91,9 @@ resolve(root, args, ctx, info) {
 ```
 
 ## Custom Projections
-If Graphql field is mapped to db field with different name, or you need multiple fields from db to compute its value, then you can provide `projection` parameter that specifies db fields you need, it can be string, array of strings, or empty array if you want to ignore it:
+If you need specific set of fields from DB to resolve a GraphQL field,
+you can provide them through `projection` parameter.
+It can be string, array of fields from DB, or empty array to ignore the field.
 ```js
 // ...
 new GraphQLObjectType({
@@ -100,23 +102,23 @@ new GraphQLObjectType({
     // ...
     displayName: {
       type: GraphQLString,
-      resolve: root => user.username,
+      resolve: user => user.username,
       projection: 'username'  // will add 'username' to pojection
     },
     fullName: {
       type: GraphQLString,
-      resolve: root => `${user.firstName} ${user.lastName}`,
+      resolve: user => `${user.firstName} ${user.lastName}`,
       // will add 'firstName' and 'lastName' to projection
       projection: ['firstName', 'lastName']
     },
     posts: {
       type: new GraphQLList(PostType),
       
-      resolve: (root, args, ctx, info) => {
+      resolve: (user, args, ctx, info) => {
         const projectionOfPost = makeProjection(info);
         const mongoProjection = toMongoProjection(projectionOfPost)
         return db.collection('posts')
-            .find({ postedBy: root.id }, mongoProjection).toArray();
+            .find({ postedBy: user.id }, mongoProjection).toArray();
       },
       
       // if data of user post collection is outside of this object
@@ -126,7 +128,7 @@ new GraphQLObjectType({
   },
 })
 ```
-requesting these fields in Graphql query will result in projection:
+requesting all these fields in GraphQL query will result in projection:
 ```
 { 
   username: 1,
@@ -136,3 +138,48 @@ requesting these fields in Graphql query will result in projection:
 }
 ```
 and you can make posts projection using requested fields of posts (in user query) in their resolve method.
+
+### NOTE: when using custom projections, it will not recursivelly process the nested objects of those fields, like it does by default.
+<br/>Use aliases if your GraphQL field is just called differently and you want to process nested fields as well.
+
+## Alias name for a field
+
+```js
+const UserType = new GraphQLObjectType({
+  name: 'UserType',
+  fields: {
+    username: {
+      type: GraphQLString,
+      resolve: user => user.email,
+      alias: 'email'  // stored as 'email' in DB
+    },
+    address: {
+      type: new GraphQLObjectType({
+        name: 'AddressType',
+        resolve: user => user.location,
+        alias: 'location'     // stored as 'location' in DB
+        fields: {
+          city: {
+            type: GraphQLString
+          },
+          postalCode: {
+            type: GraphQLString,
+            resolve: address => address.zipCode,
+            alias: 'zipCode'  // stored as 'zipCode' in DB
+          },
+        },
+      })
+    },
+  },
+});
+```
+requesting all these fields in GraphQL query will result in projection:
+```
+{ 
+  email: 1,
+  location: {
+    city: 1,
+    zipCode: 1
+  }
+}
+```

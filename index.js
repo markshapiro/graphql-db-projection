@@ -73,7 +73,7 @@ export default function projector(
     // Ensure all of the selection sets through the tree aren't fragments
     const selections: Array<FieldNode> = replaceFragments(fieldNode.selectionSet, fragments);
     selections.forEach((selection: FieldNode): Projection => {
-      const fieldName: string = selection.name.value;
+      let fieldName: string = selection.name.value;
       /* eslint-disable no-underscore-dangle */
       const type: ?GraphQLNamedType = schema._typeMap[typeName];
       const field: ?Object = type.getFields()[fieldName];
@@ -90,6 +90,9 @@ export default function projector(
           projection[fname] = 1;
         });
         return;
+      }
+      if (field.alias) {
+        fieldName = field.alias;
       }
       // if complex type
       if (selection.selectionSet) {

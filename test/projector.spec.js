@@ -53,7 +53,7 @@ describe('projector', () => {
     expect(projection).to.deep.eql({
       id: 1,
       name: 1,
-      address: {
+      location: {
         street: 1,
         postCode: 1,
       },
