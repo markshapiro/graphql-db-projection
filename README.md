@@ -143,7 +143,7 @@ and you can make posts projection using requested fields of posts (in user query
 <br/>Use aliases if your GraphQL field is just called differently and you want to process nested fields as well.
 
 ## Alias name for a field
-
+If your GraphQL field maps to a field with different name ad can be nested object with its own projections.
 ```js
 const UserType = new GraphQLObjectType({
   name: 'UserType',
