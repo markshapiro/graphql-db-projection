@@ -108,7 +108,7 @@ new GraphQLObjectType({
     fullName: {
       type: GraphQLString,
       resolve: user => `${user.gender ? 'Mr.' : 'Mrs.'}`
-                    + `${user.firstName} ${user.lastName}`,
+                    + ` ${user.firstName} ${user.lastName}`,
       // will add 'gender', 'firstName' and 'lastName' to projection
       projection: ['gender', 'firstName', 'lastName']
     },
@@ -133,8 +133,8 @@ new GraphQLObjectType({
 requesting all these fields in GraphQL query will result in projection:
 ```
 { 
-  gender: 1,
   username: 1,
+  gender: 1,
   firstName: 1,
   lastName: 1
   // but not posts
