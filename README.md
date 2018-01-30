@@ -107,9 +107,10 @@ new GraphQLObjectType({
     },
     fullName: {
       type: GraphQLString,
-      resolve: user => `${user.firstName} ${user.lastName}`,
-      // will add 'firstName' and 'lastName' to projection
-      projection: ['firstName', 'lastName']
+      resolve: user => `${user.gender?'Mr':'Mrs'}. 
+                        ${user.firstName} ${user.lastName}`,
+      // will add 'gender', 'firstName' and 'lastName' to projection
+      projection: ['gender', firstName', 'lastName']
     },
     posts: {
       type: new GraphQLList(PostType),
@@ -132,6 +133,7 @@ new GraphQLObjectType({
 requesting all these fields in GraphQL query will result in projection:
 ```
 { 
+  gender: 1,
   username: 1,
   firstName: 1,
   lastName: 1
