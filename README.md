@@ -109,7 +109,7 @@ new GraphQLObjectType({
       type: GraphQLString,
       resolve: user => `${user.lastName}`,
       // will add 'gender', 'firstName' and 'lastName' to projection
-      projection: ['gender', firstName', 'lastName']
+
     },
     posts: {
       type: new GraphQLList(PostType),
