@@ -29,8 +29,8 @@ import makeProjection from 'graphql-db-projection';
           type: GraphQLString,
         },
       },
-      resolve: (user, { id }, request, info) => {
-        const projection = makeProjection(info);
+      resolve: (user, { id }, request, fieldASTs) => {
+        const projection = makeProjection(fieldASTs);
         
         // now you can use projection to know what are the only
         // fields you need from db.
@@ -83,17 +83,17 @@ now you can use it to fetch fields, for example for mongoDB:
 ```js
 import { toMongoProjection } from 'graphql-db-projection';
 // ...
-resolve(user, args, ctx, info) {
-  const projection = makeProjection(info);
+resolve(user, args, ctx, fieldASTs) {
+  const projection = makeProjection(fieldASTs);
   const mongoProjection = toMongoProjection(projection)
   return db.collection('users').findOne(args.id, mongoProjection);
 }
 ```
 
 ## Custom Projections
-If you need specific set of fields from DB to resolve a GraphQL field,
+If you need a specific set of fields from DB to resolve a GraphQL field,
 you can provide them through `projection` parameter.
-It can be string, array of fields from DB, or empty array to ignore the field.
+<br/>It can be string, array of fields from DB, or empty array to ignore the field.
 ```js
 // ...
 new GraphQLObjectType({
@@ -114,21 +114,22 @@ new GraphQLObjectType({
     posts: {
       type: new GraphQLList(PostType),
       
-      resolve: (user, args, ctx, info) => {
-        const projectionOfPost = makeProjection(info);
+      // if posts of user are in different DB collection,
+      // you can make inner projection for only posts fields.
+      resolve: (user, args, ctx, postsFieldASTs) => {
+        const projectionOfPost = makeProjection(postsFieldASTs);
         const mongoProjection = toMongoProjection(projectionOfPost)
         return db.collection('posts')
             .find({ postedBy: user.id }, mongoProjection).toArray();
       },
       
-      // if data of user post collection is outside of this object
-      // and you don't need any fields for this, will omit this field:
+      // you can ignore the field since the posts data is elsewhere.
       projection: []
     }
   },
 })
 ```
-requesting all these fields in GraphQL query will result in projection:
+Requesting all these fields in GraphQL query will result in projection:
 ```
 { 
   username: 1,
@@ -137,7 +138,6 @@ requesting all these fields in GraphQL query will result in projection:
   // but not posts
 }
 ```
-and you can make posts projection using requested fields of posts (in user query) in their resolve method.
 
 #### NOTE: when using custom projections, it will not recursivelly process the nested objects of those fields, like it does by default. Use aliases if your GraphQL field is just called differently and you want to process nested fields as well.
 
