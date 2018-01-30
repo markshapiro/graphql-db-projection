@@ -155,8 +155,6 @@ const UserType = new GraphQLObjectType({
     address: {
       type: new GraphQLObjectType({
         name: 'AddressType',
-        resolve: user => user.location,
-        alias: 'location'     // stored as 'location' in DB
         fields: {
           city: {
             type: GraphQLString
@@ -167,7 +165,9 @@ const UserType = new GraphQLObjectType({
             alias: 'zipCode'  // stored as 'zipCode' in DB
           },
         },
-      })
+      }),
+      resolve: user => user.location,
+      alias: 'location'     // stored as 'location' in DB
     },
   },
 });
