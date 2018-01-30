@@ -107,8 +107,7 @@ new GraphQLObjectType({
     },
     fullName: {
       type: GraphQLString,
-      resolve: user => `${user.gender?'Mr':'Mrs'}. `
-                      +`${user.firstName} ${user.lastName}`,
+      resolve: user => `${user.lastName}`,
       // will add 'gender', 'firstName' and 'lastName' to projection
       projection: ['gender', firstName', 'lastName']
     },
