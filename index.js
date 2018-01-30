@@ -91,8 +91,8 @@ export default function projector(
         });
         return;
       }
-      if (field.alias) {
-        fieldName = field.alias;
+      if (field.trueName) {
+        fieldName = field.trueName;
       }
       // if complex type
       if (selection.selectionSet) {

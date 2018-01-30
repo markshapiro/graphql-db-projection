@@ -139,10 +139,10 @@ requesting all these fields in GraphQL query will result in projection:
 }
 ```
 
-#### NOTE: when using custom projections, it will not recursivelly process the nested objects of those fields, like it does by default. Use aliases if your GraphQL field is just called differently and you want to process nested fields as well.
+#### NOTE: when using custom projections, it will not recursivelly process the nested objects of those fields, like it does by default. Use `trueName` if your GraphQL field is just called differently in DB and you want to process nested fields as well.
 
-## Alias Field Name
-If your GraphQL field maps to a field with different name and can be nested object with its own projections.
+## True Name of Field in DB
+If your GraphQL field maps to a field with different name in DB and can be nested object with its own projections.
 ```js
 const UserType = new GraphQLObjectType({
   name: 'UserType',
@@ -150,7 +150,7 @@ const UserType = new GraphQLObjectType({
     username: {
       type: GraphQLString,
       resolve: user => user.email,
-      alias: 'email'  // stored as 'email' in DB
+      trueName: 'email'  // stored as 'email' in DB
     },
     address: {
       type: new GraphQLObjectType({
@@ -162,12 +162,12 @@ const UserType = new GraphQLObjectType({
           postalCode: {
             type: GraphQLString,
             resolve: address => address.zipCode,
-            alias: 'zipCode'  // stored as 'zipCode' in DB
+            trueName: 'zipCode'  // stored as 'zipCode' in DB
           },
         },
       }),
       resolve: user => user.location,
-      alias: 'location'     // stored as 'location' in DB
+      trueName: 'location'     // stored as 'location' in DB
     },
   },
 });
