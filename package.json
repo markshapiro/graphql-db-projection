@@ -20,6 +20,8 @@
     "graphql",
     "project",
     "projection",
+    "apollo",
+    "apollo-server",
     "select"
   ],
   "author": "",
