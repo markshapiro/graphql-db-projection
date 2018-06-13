@@ -79,7 +79,7 @@ const resolvers = {
 };
 ```
 then the following query:
-```
+```js
 query ($id: String){
   user (id: $id){
     firstName
@@ -91,7 +91,7 @@ query ($id: String){
 }
 ```
 will produce projection:
-```
+```js
 {
   firstName: 1,
   address: { city: 1, street: 1 }
@@ -156,7 +156,7 @@ const typeDefs = gql`
 `;
 ```
 requesting all these fields in GraphQL query will result in projection:
-```
+```js
 { 
   username: 1,
   gender: 1,
@@ -209,7 +209,7 @@ const resolvers = {
 };
 ```
 requesting all these fields in GraphQL query will result in projection:
-```
+```js
 {
   email: 1,
   location: {
