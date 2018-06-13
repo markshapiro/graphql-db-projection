@@ -43,21 +43,7 @@ const server = new ApolloServer({
 ```
 
 ## Simple Usage
-For example when fetching user by id:
-
-```js
-import makeProjection from 'graphql-db-projection';
-// ...
-const resolvers = {
-  Query: {
-    users: (obj, args, request, fieldASTs) => {
-      const projection = makeProjection(fieldASTs);
-      // ...
-    },
-  },
-};
-```
-and suppose the `User` definition is:
+suppose we have `User` model:
 ```js
 const typeDefs = gql`
   directive @proj(...)
@@ -76,6 +62,19 @@ const typeDefs = gql`
   }
 `;
 ```
+we can call `makeProjection` on last ASTs param to get projections mapping:
+```js
+import makeProjection from 'graphql-db-projection';
+// ...
+const resolvers = {
+  Query: {
+    users: (obj, args, request, fieldASTs) => {
+      const projection = makeProjection(fieldASTs);
+      // ...
+    },
+  },
+};
+```
 then the following query:
 ```
 query ($id: String){
@@ -88,14 +87,14 @@ query ($id: String){
   }
 }
 ```
-will produce `projection`:
+will produce projection:
 ```
 { 
   firstName: 1,
   address: { city: 1, street: 1 }
 }
 ```
-now you can use it to fetch fields, for example for mongoDB:
+now you can use it to project fields for db, for example for mongoDB:
 ```js
 import { toMongoProjection } from 'graphql-db-projection';
 // ...
@@ -170,7 +169,7 @@ const typeDefs = gql`
 
     // stored as 'email' in DB
     username: String @proj(email: 'email')
-    
+
     // stored as 'location' in DB
     address: Address(trueName: 'location')
   }
