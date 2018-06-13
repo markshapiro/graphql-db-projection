@@ -17,48 +17,64 @@ or npm:
 $ npm i -S graphql-db-projection
 ```
 
+## Setup
+To use with Apollo you need to prepare directive:
+
+```js
+import makeProjection, { ApolloProjector } from 'graphql-db-projection';
+
+const typeDefs = gql`
+  directive @proj(
+    projection: String,
+    projections: [String],
+    trueName: String
+  ) on FIELD_DEFINITION
+  ...
+`;
+// ...
+const server = new ApolloServer({
+  typeDefs,
+  resolvers,
+  schemaDirectives: {
+    proj: ApolloProjector,
+  }
+});
+
+```
+
 ## Simple Usage
 For example when fetching user by id:
+
 ```js
 import makeProjection from 'graphql-db-projection';
 // ...
-    {
-      type: UserType,
-      args: {
-        id: {
-          type: GraphQLString,
-        },
-      },
-      resolve: (user, { id }, request, fieldASTs) => {
-        const projection = makeProjection(fieldASTs);
-        
-        // now you can use projection to know what are the only
-        // fields you need from db.
-        // ...
-      },
-    }
-// ...
-```
-and suppose the `UserType` is:
-```js
-const UserType = new GraphQLObjectType({
-  name: 'UserType',
-  fields: {
-    firstName: { type: GraphQLString },
-    lastName: { type: GraphQLString },
-    username: { type: GraphQLString },
-    address: {
-      type: new GraphQLObjectType({
-        name: 'AddressType',
-        fields: {
-          country: { type: GraphQLString },
-          city: { type: GraphQLString },
-          street: { type: GraphQLString },
-        },
-      })
+const resolvers = {
+  Query: {
+    users: (obj, args, request, fieldASTs) => {
+      const projection = makeProjection(fieldASTs);
+      // ...
     },
   },
-});
+};
+```
+and suppose the `User` definition is:
+```js
+const typeDefs = gql`
+  directive @proj(...)
+
+  type User {
+    firstName: String
+    lastName: String
+    username: String
+    address: Address
+  }
+
+  type Address {
+    country: String
+    city: String
+    street: String
+  }
+`;
 ```
 then the following query:
 ```
@@ -83,10 +99,14 @@ now you can use it to fetch fields, for example for mongoDB:
 ```js
 import { toMongoProjection } from 'graphql-db-projection';
 // ...
-resolve(user, args, ctx, fieldASTs) {
-  const projection = makeProjection(fieldASTs);
-  const mongoProjection = toMongoProjection(projection)
-  return db.collection('users').findOne(args.id, mongoProjection);
+const resolvers = {
+  Query: {
+    users: (obj, args, request, fieldASTs) => {
+      const projection = makeProjection(fieldASTs);
+      const mongoProjection = toMongoProjection(projection)
+      return db.collection('users').findOne(args.id, mongoProjection);
+    }
+  }
 }
 ```
 
@@ -95,40 +115,37 @@ If you need a specific set of fields from DB to resolve a GraphQL field,
 you can provide them through `projection` parameter.
 <br/>It can be string, array of fields from DB, or empty array to ignore the field.
 ```js
+const typeDefs = gql`
+  directive @proj(...)
+
+  type User {
+
+    //will add 'username' to pojection
+    displayName: String @proj(projection: 'username')
+
+    // will add 'gender', 'firstName' and 'lastName' to projection
+    fullName: String(projections: ['gender', 'firstName', 'lastName'])
+
+    // you can ignore the field since the posts data is elsewhere.
+    posts: [PostType](projections: [])
+  }
+`;
 // ...
-new GraphQLObjectType({
-  name: 'UserType',
-  fields: {
-    // ...
-    displayName: {
-      type: GraphQLString,
-      resolve: user => user.username,
-      projection: 'username'  // will add 'username' to pojection
-    },
-    fullName: {
-      type: GraphQLString,
-      resolve: user => `${user.gender ? 'Mr.' : 'Mrs.'}`
-                    + ` ${user.firstName} ${user.lastName}`,
-      // will add 'gender', 'firstName' and 'lastName' to projection
-      projection: ['gender', 'firstName', 'lastName']
-    },
-    posts: {
-      type: new GraphQLList(PostType),
-      
+const resolvers = {
+  // ...
+  User: {
+    displayName: user => user.username,
+    fullName: user => `${user.gender ? 'Mr.' : 'Mrs.'} ${user.firstName} ${user.lastName}`,
+    posts: (user, args, ctx, postsFieldASTs) => {
       // if posts of user are in different DB collection,
       // you can make inner projection for only posts fields.
-      resolve: (user, args, ctx, postsFieldASTs) => {
-        const projectionOfPost = makeProjection(postsFieldASTs);
-        const mongoProjection = toMongoProjection(projectionOfPost)
-        return db.collection('posts')
-            .find({ postedBy: user.id }, mongoProjection).toArray();
-      },
-      
-      // you can ignore the field since the posts data is elsewhere.
-      projection: []
-    }
+      const projectionOfPost = makeProjection(postsFieldASTs);
+      const mongoProjection = toMongoProjection(projectionOfPost)
+      return db.collection('posts')
+          .find({ postedBy: user.id }, mongoProjection).toArray();
+    },
   },
-})
+};
 ```
 requesting all these fields in GraphQL query will result in projection:
 ```
@@ -146,74 +163,23 @@ requesting all these fields in GraphQL query will result in projection:
 ## True Name of Field in DB
 If your GraphQL field maps to a field with different name in DB and can be nested object with its own projections.
 ```js
-const UserType = new GraphQLObjectType({
-  name: 'UserType',
-  fields: {
-    username: {
-      type: GraphQLString,
-      resolve: user => user.email,
-      trueName: 'email'  // stored as 'email' in DB
-    },
-    address: {
-      type: new GraphQLObjectType({
-        name: 'AddressType',
-        fields: {
-          city: {
-            type: GraphQLString
-          },
-          postalCode: {
-            type: GraphQLString,
-            resolve: address => address.zipCode,
-            trueName: 'zipCode'  // stored as 'zipCode' in DB
-          },
-        },
-      }),
-      resolve: user => user.location,
-      trueName: 'location'     // stored as 'location' in DB
-    },
-  },
-});
-```
-requesting all these fields in GraphQL query will result in projection:
-```
-{ 
-  email: 1,
-  location: {
-    city: 1,
-    zipCode: 1
-  }
-}
-```
-
-## Apollo Support
-Supports Apollo, with a small change that you must pass array of projections to `projections`
-
-```js
-import makeProjection, { ApolloProjector } from 'graphql-db-projection';
-
-// ...
-
 const typeDefs = gql`
-  directive @proj(
-    projection: String,
-    projections: [String],
-    trueName: String
-  ) on FIELD_DEFINITION
-
-  type Address {
-    city: String
-    street: String
-  }
+  directive @proj(...)
 
   type User {
-    displayName: String @proj(projection: "username")
-    fullName: String @proj(projections: ["gender", "firstName", "lastName"])
-    address: Address @proj(trueName: "location")
+
+    // stored as 'email' in DB
+    username: String @proj(email: 'email')
+    
+    // stored as 'location' in DB
+    address: Address(trueName: 'location')
+  }
+  type Address {
+    city: String
+    postalCode: String @proj(email: 'zipCode')  // stored as 'zipCode' in DB
   }
 `;
-
 // ...
-
 const resolvers = {
   Query: {
     users: (obj, args, request, fieldASTs) => {
@@ -222,34 +188,21 @@ const resolvers = {
     },
   },
   User: {
-    displayName: user => user.username,
-    fullName: user => `${user.gender ? 'Mr.' : 'Mrs.'} ${user.firstName} ${user.lastName}`,
+    username: user => user.email,
     address: user => user.location,
   },
+  Address: {
+    postalCode: addr => addr.zipCode,
+  },
 };
-
-// ...
-
-const server = new ApolloServer({
-  typeDefs,
-  resolvers,
-  schemaDirectives: {
-    proj: ApolloProjector,
-  }
-});
-
 ```
-
-requesting all user fields in GraphQL query will result in projection:
+requesting all these fields in GraphQL query will result in projection:
 ```
 { 
-  username: 1,
-  gender: 1,
-  firstName: 1,
-  lastName: 1,
+  email: 1,
   location: {
-    city: 1
-    street: 1
+    city: 1,
+    zipCode: 1
   }
 }
 ```
