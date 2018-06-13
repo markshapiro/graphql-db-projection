@@ -12,7 +12,8 @@ import type {
 import {
   getNamedType,
 } from 'graphql/type';
-import { SchemaDirectiveVisitor } from "graphql-tools";
+
+import { SchemaDirectiveVisitor } from 'graphql-tools';
 
 export type Projection = {
   [id:string]: Projection
@@ -134,8 +135,8 @@ function toMongoProjection(projection) {
 class ApolloProjector extends SchemaDirectiveVisitor {
   visitFieldDefinition(field) {
     const { projection, projections, trueName } = this.args;
-    field.projection = projection || projections;
-    field.trueName = trueName;
+    field.projection = projection || projections; // eslint-disable-line
+    field.trueName = trueName;  // eslint-disable-line
   }
 }
 
