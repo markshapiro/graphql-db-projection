@@ -247,7 +247,6 @@ requesting all these fields in GraphQL query will result in projection:
   gender: 1,
   firstName: 1,
   lastName: 1,
-  friends: 1,
   location:{
     city
     street
