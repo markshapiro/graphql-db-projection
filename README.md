@@ -181,6 +181,7 @@ const typeDefs = gql`
     // stored as 'location' in DB
     address: Address @proj(trueName: 'location')
   }
+  
   type Address {
     city: String
     postalCode: String @proj(email: 'zipCode')  // stored as 'zipCode' in DB
