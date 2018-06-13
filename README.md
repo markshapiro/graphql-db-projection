@@ -200,10 +200,15 @@ const typeDefs = gql`
     trueName: String
   ) on FIELD_DEFINITION
 
+  type Address {
+    city: String
+    street: String
+  }
+
   type User {
     displayName: String @proj(projection: "username")
     fullName: String @proj(projections: ["gender", "firstName", "lastName"])
-    following: [User]
+    address: Address @proj(trueName: "location")
   }
 `;
 
@@ -215,6 +220,11 @@ const resolvers = {
       const projection = makeProjection(fieldASTs);
       // ...
     },
+  },
+  User: {
+    displayName: user => user.displayName,
+    fullName: user => `${user.gender ? 'Mr.' : 'Mrs.'} ${user.firstName} ${user.lastName}`,
+    address: user => user.location,
   },
 };
 
@@ -228,4 +238,19 @@ const server = new ApolloServer({
   }
 });
 
+```
+
+requesting all these fields in GraphQL query will result in projection:
+```
+{ 
+  username: 1,
+  gender: 1,
+  firstName: 1,
+  lastName: 1,
+  friends: 1,
+  location:{
+    city
+    street
+  }
+}
 ```
