@@ -240,7 +240,7 @@ const server = new ApolloServer({
 
 ```
 
-requesting all these fields in GraphQL query will result in projection:
+requesting all user fields in GraphQL query will result in projection:
 ```
 { 
   username: 1,
