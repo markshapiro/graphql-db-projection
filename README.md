@@ -92,7 +92,7 @@ query ($id: String){
 ```
 will produce projection:
 ```
-{ 
+{
   firstName: 1,
   address: { city: 1, street: 1 }
 }
@@ -208,7 +208,7 @@ const resolvers = {
 ```
 requesting all these fields in GraphQL query will result in projection:
 ```
-{ 
+{
   email: 1,
   location: {
     city: 1,
