@@ -115,7 +115,7 @@ const resolvers = {
 ```
 
 ## Custom Projections
-If resolve field function needs field of different name from db, pass it with `projection` parameter to direcive, if depends on multiple fields then pass array of all fields to `projections` parameter, to not ask for any pass empty array [].
+If resolve field function needs field of different name from db, pass it with `projection` parameter to directive, if depends on multiple fields then pass array of all fields to `projections` parameter, to not ask for any pass empty array [].
 
 ```js
 const resolvers = {
