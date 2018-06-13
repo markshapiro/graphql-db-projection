@@ -179,7 +179,7 @@ const typeDefs = gql`
     username: String @proj(email: 'email')
 
     // stored as 'location' in DB
-    address: Address  @proj(trueName: 'location')
+    address: Address @proj(trueName: 'location')
   }
   type Address {
     city: String
