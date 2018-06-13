@@ -29,9 +29,12 @@ const typeDefs = gql`
     projections: [String],
     trueName: String
   ) on FIELD_DEFINITION
-  ...
+
+  // ... your schemas
 `;
+
 // ...
+
 const server = new ApolloServer({
   typeDefs,
   resolvers,
@@ -43,7 +46,7 @@ const server = new ApolloServer({
 ```
 
 ## Simple Usage
-suppose we have `User` model:
+Suppose we have `User` model:
 ```js
 const typeDefs = gql`
   directive @proj(...)
@@ -97,7 +100,9 @@ will produce projection:
 now you can use it to project fields for db, for example for mongoDB:
 ```js
 import { toMongoProjection } from 'graphql-db-projection';
+
 // ...
+
 const resolvers = {
   Query: {
     users: (obj, args, request, fieldASTs) => {
@@ -110,32 +115,17 @@ const resolvers = {
 ```
 
 ## Custom Projections
-If you need a specific set of fields from DB to resolve a GraphQL field,
-you can provide them through `projection` parameter.
-<br/>It can be string, array of fields from DB, or empty array to ignore the field.
+If you need a specific set of fields from DB to resolve a GraphQL field, you can provide them through `projection` parameter. It can be string, array of fields from DB, or empty array to ignore the field.
 ```js
-const typeDefs = gql`
-  directive @proj(...)
-
-  type User {
-
-    //will add 'username' to pojection
-    displayName: String @proj(projection: 'username')
-
-    // will add 'gender', 'firstName' and 'lastName' to projection
-    fullName: String(projections: ['gender', 'firstName', 'lastName'])
-
-    // you can ignore the field since the posts data is elsewhere.
-    posts: [PostType](projections: [])
-  }
-`;
-// ...
 const resolvers = {
+
   // ...
+
   User: {
     displayName: user => user.username,
     fullName: user => `${user.gender ? 'Mr.' : 'Mrs.'} ${user.firstName} ${user.lastName}`,
     posts: (user, args, ctx, postsFieldASTs) => {
+
       // if posts of user are in different DB collection,
       // you can make inner projection for only posts fields.
       const projectionOfPost = makeProjection(postsFieldASTs);
@@ -145,6 +135,24 @@ const resolvers = {
     },
   },
 };
+
+// ...
+
+const typeDefs = gql`
+  directive @proj(...)
+
+  type User {
+
+    // will add 'username' to pojection
+    displayName: String @proj(projection: 'username')
+
+    // will add 'gender', 'firstName' and 'lastName' to projection
+    fullName: String @proj(projections: ['gender', 'firstName', 'lastName'])
+
+    // posts of user, suppose fetched from different table/collection
+    posts: [PostType] @proj(projections: [])
+  }
+`;
 ```
 requesting all these fields in GraphQL query will result in projection:
 ```
@@ -153,7 +161,7 @@ requesting all these fields in GraphQL query will result in projection:
   gender: 1,
   firstName: 1,
   lastName: 1
-  // but not posts
+  // but not posts as we explicitly omitted them because they are located in different collection
 }
 ```
 
@@ -171,18 +179,21 @@ const typeDefs = gql`
     username: String @proj(email: 'email')
 
     // stored as 'location' in DB
-    address: Address(trueName: 'location')
+    address: Address  @proj(trueName: 'location')
   }
   type Address {
     city: String
     postalCode: String @proj(email: 'zipCode')  // stored as 'zipCode' in DB
   }
 `;
+
 // ...
+
 const resolvers = {
   Query: {
     users: (obj, args, request, fieldASTs) => {
       const projection = makeProjection(fieldASTs);
+
       // ...
     },
   },
