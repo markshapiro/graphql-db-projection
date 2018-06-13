@@ -45,6 +45,6 @@
   },
   "peerDependencies": {
     "graphql": ">= 0.8.0, < 1.0.0",
-    "graphql-tools": ">= 2.0.0"
+    "graphql-tools": ">= 3.0.0"
   }
 }
