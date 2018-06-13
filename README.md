@@ -222,7 +222,7 @@ const resolvers = {
     },
   },
   User: {
-    displayName: user => user.displayName,
+    displayName: user => user.username,
     fullName: user => `${user.gender ? 'Mr.' : 'Mrs.'} ${user.firstName} ${user.lastName}`,
     address: user => user.location,
   },
