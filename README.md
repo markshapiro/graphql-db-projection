@@ -115,7 +115,8 @@ const resolvers = {
 ```
 
 ## Custom Projections
-If you need a specific set of fields from DB to resolve a GraphQL field, you can provide them through `projection` parameter. It can be string, array of fields from DB, or empty array to ignore the field.
+if resolve field function needs field of different name from db, pass it with `projection` parameter to direcive, if depends on multiple fields then pass array of all fields to `projections` parameter, to not ask for any pass empty array [].
+
 ```js
 const resolvers = {
 
