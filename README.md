@@ -1,7 +1,7 @@
 # graphql-db-projection
 
 Given GraphQL query, creates db fields projection to fetch only fields that are required.
-<br/>Supports lists, nested queries and fragments.
+<br/>Supports lists, nested queries and fragments + Apollo support.
 
 ## Installation
 
@@ -183,4 +183,49 @@ requesting all these fields in GraphQL query will result in projection:
     zipCode: 1
   }
 }
+```
+
+## Apollo Support
+Supports Apollo, with a small change that you must pass array of projections to `projections`
+
+```js
+import makeProjection, { ApolloProjector } from 'graphql-db-projection';
+
+// ...
+
+const typeDefs = gql`
+  directive @proj(
+    projection: String,
+    projections: [String],
+    trueName: String
+  ) on FIELD_DEFINITION
+
+  type User {
+    displayName: String @proj(projection: "username")
+    fullName: String @proj(projections: ["gender", "firstName", "lastName"])
+    following: [User]
+  }
+`;
+
+// ...
+
+const resolvers = {
+  Query: {
+    users: (obj, args, request, fieldASTs) => {
+      const projection = makeProjection(fieldASTs);
+      // ...
+    },
+  },
+};
+
+// ...
+
+const server = new ApolloServer({
+  typeDefs,
+  resolvers,
+  schemaDirectives: {
+    proj: ApolloProjector,
+  }
+});
+
 ```

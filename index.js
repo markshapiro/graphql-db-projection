@@ -12,6 +12,7 @@ import type {
 import {
   getNamedType,
 } from 'graphql/type';
+import { SchemaDirectiveVisitor } from "graphql-tools";
 
 export type Projection = {
   [id:string]: Projection
@@ -130,6 +131,15 @@ function toMongoProjection(projection) {
   return result;
 }
 
+class ApolloProjector extends SchemaDirectiveVisitor {
+  visitFieldDefinition(field) {
+    const { projection, projections, trueName } = this.args;
+    field.projection = projection || projections;
+    field.trueName = trueName;
+  }
+}
+
 export {
   toMongoProjection,
+  ApolloProjector,
 };
