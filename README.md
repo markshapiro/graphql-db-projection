@@ -128,7 +128,7 @@ const resolvers = {
     posts: (user, args, ctx, postsFieldASTs) => {
 
       // if posts of user are in different DB collection,
-      // you can make inner projection for only posts fields.
+      // you can make inner projection for only Posts fields.
       const projectionOfPost = makeProjection(postsFieldASTs);
       const mongoProjection = toMongoProjection(projectionOfPost)
       return db.collection('posts')
