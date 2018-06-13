@@ -1,6 +1,6 @@
 {
   "name": "graphql-db-projection",
-  "version": "0.0.26",
+  "version": "0.0.27",
   "description": "",
   "main": "dist/index.js",
   "scripts": {
