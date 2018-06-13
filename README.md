@@ -177,7 +177,7 @@ const typeDefs = gql`
   type User {
 
     // stored as 'email' in DB
-    username: String @proj(email: 'email')
+    username: String @proj(trueName: 'email')
 
     // stored as 'location' in DB
     address: Address @proj(trueName: 'location')
