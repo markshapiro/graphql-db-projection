@@ -18,7 +18,7 @@ $ npm i -S graphql-db-projection
 ```
 
 ## Setup
-Prepare helping directive:
+Prepare helping directive if you intend to use custom projections:
 
 ```js
 import makeProjection, { ApolloProjector } from 'graphql-db-projection';
@@ -35,6 +35,7 @@ const typeDefs = gql`
 
 // ...
 
+// (you can also call the directive differently)
 const server = new ApolloServer({
   typeDefs,
   resolvers,
@@ -49,8 +50,7 @@ const server = new ApolloServer({
 Suppose we have `User` model:
 ```js
 const typeDefs = gql`
-  directive @proj(...)
-
+  directive @proj(...)  // directive not needed in simple example
   type User {
     firstName: String
     lastName: String
@@ -94,7 +94,10 @@ will produce projection:
 ```js
 {
   firstName: 1,
-  address: { city: 1, street: 1 }
+  address: {
+    city: 1,
+    street: 1
+  }
 }
 ```
 now you can use it to project fields for db, for example for mongoDB:
@@ -115,7 +118,7 @@ const resolvers = {
 ```
 
 ## Custom Projections
-If resolve field function needs field of different name from db, pass it to `projection` parameter in directive, if depends on multiple fields then pass array of all fields to `projections` parameter, to not ask for any pass empty array [].
+If resolve field function maps to field with different name, or if it calculates value based on multiple fields from DB, then pass the critical DB field or their array through `projection` or `projections` parameter respectively. Pass [] to not to ask for any fields.
 
 ```js
 const resolvers = {
@@ -123,12 +126,15 @@ const resolvers = {
   // ...
 
   User: {
+    // translated from username field from db
     displayName: user => user.username,
+    // calculated from gender, firstName, lastName from DB
     fullName: user => `${user.gender ? 'Mr.' : 'Mrs.'} ${user.firstName} ${user.lastName}`,
+    // suppose Posts of User are in different DB collection/table
     posts: (user, args, ctx, postsFieldASTs) => {
 
-      // if posts of user are in different DB collection,
-      // you can make inner projection for only Posts fields.
+      // you can make new isolated projection only for User's Posts fetch
+      // based on Post's GraphQL subquery
       const projectionOfPost = makeProjection(postsFieldASTs);
       const mongoProjection = toMongoProjection(projectionOfPost)
       return db.collection('posts')
@@ -166,26 +172,23 @@ requesting all these fields in GraphQL query will result in projection:
 }
 ```
 
-#### NOTE: when using custom projections, it will not recursivelly process the nested objects of those fields, like it does by default. Use `trueName` if your GraphQL field is just called differently in DB and you want to process nested fields as well.
-
 ## True Name of Field in DB
-If your GraphQL field maps to a field with different name in DB and can be nested object with its own projections.
+When using custom projection on field with object value in DB, you won't be able to make inner projections of that object, it will just ask for `<field name>: 1`, to fix it use `trueName`:
+
 ```js
 const typeDefs = gql`
   directive @proj(...)
 
   type User {
+    username: String
 
-    // stored as 'email' in DB
-    username: String @proj(trueName: 'email')
-
-    // stored as 'location' in DB
+    // stored as 'location' object in DB
     address: Address @proj(trueName: 'location')
   }
   
   type Address {
     city: String
-    postalCode: String @proj(trueName: 'zipCode')  // stored as 'zipCode' in DB
+    postalCode: String
   }
 `;
 
@@ -200,21 +203,17 @@ const resolvers = {
     },
   },
   User: {
-    username: user => user.email,
     address: user => user.location,
-  },
-  Address: {
-    postalCode: addr => addr.zipCode,
   },
 };
 ```
 requesting all these fields in GraphQL query will result in projection:
 ```js
 {
-  email: 1,
+  username: 1,
   location: {
     city: 1,
-    zipCode: 1
+    postalCode: 1
   }
 }
 ```
