@@ -157,21 +157,6 @@ the result when requesting all fields will be just `{ firstName: 1, username: 1 
 If resolve function of GraphQL field uses multiple DB fields to calculate the value, use `@proj(projection: <field in db>)` or `@proj(projections: [<field in db>, ...])` to specify absolute paths of fields you need:
 
 ```js
-const resolvers = {
-
-  // ...
-
-  User: {
-    // displayName is calculated from username in DB
-    displayName: user => user.username,
-    
-    // fullName is calculated from gender, firstName, lastName in DB
-    fullName: user => `${user.gender ? 'Mr.' : 'Mrs.'} ${user.firstName} ${user.lastName}`,
-  },
-};
-
-// ...
-
 const typeDefs = gql`
   type User {
 
@@ -180,8 +165,30 @@ const typeDefs = gql`
 
     // will add gender, firstName and lastName to projection
     fullName: String @proj(projections: ["gender", "firstName", "lastName"])
+    
+    address: Address
+  }
+  
+  type Address {
+    fullAddress: @proj(projections: ["city", "postalCode"])
   }
 `;
+
+// ...
+
+const resolvers = {
+  User: {
+    // displayName is calculated from username in DB
+    displayName: user => user.username,
+    
+    // fullName is calculated from gender, firstName, lastName in DB
+    fullName: user => `${user.gender ? 'Mr.' : 'Mrs.'} ${user.firstName} ${user.lastName}`,
+  },
+  
+  Address: {
+    fullAddress: address => `${user.city} ${user.postalCode}`,
+  }
+};
 ```
 requesting all these fields in GraphQL query will result in projection:
 ```js
@@ -189,12 +196,16 @@ requesting all these fields in GraphQL query will result in projection:
   username: 1,
   gender: 1,
   firstName: 1,
-  lastName: 1
+  lastName: 1,
+  addess: {
+    city: 1,
+    postalCode: 1
+  }
 }
 ```
 
 ## Name of Field in DB called differently
-Custom projections specify absolute paths inside nested project, but don't do recursion on the nested fields like by default. If you want to continue make projections recursively into nested object when onlt the field is called differently in DB, do `@proj(nameInDB: <field name in db>)`:
+Custom projections specify absolute paths inside nested project, but don't do recursion on the nested fields like you have by default. If only the name of field is called differently in DB but you want to continue project the nested fields, use `@proj(nameInDB: <field name in db>)`:
 
 ```js
 const typeDefs = gql`
