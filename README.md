@@ -169,7 +169,7 @@ const typeDefs = gql`
   
   type Address {
     country: String
-    fullAddress: @proj(projections: ["city", "postalCode"])
+    fullAddress: @proj(projections: ["city", "street"])
   }
 `;
 
@@ -183,7 +183,7 @@ const resolvers = {
   },
   
   Address: {
-    fullAddress: address => `${user.city} ${user.postalCode}`,
+    fullAddress: address => `${address.city} ${address.street}`,
   }
 };
 ```
@@ -197,7 +197,7 @@ requesting all these fields in GraphQL query will result in projection:
   addess: {
     country: 1,
     city: 1,
-    postalCode: 1
+    street: 1
   }
 }
 ```
