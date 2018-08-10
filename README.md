@@ -23,21 +23,8 @@ Prepare helping directive if you intend to use custom projections:
 ```js
 import makeProjection, { ApolloProjector } from 'graphql-db-projection';
 
-const typeDefs = gql`
-  directive @proj(
-    projection: String,
-    projections: [String],
-    nameInDB: String
-  ) on FIELD_DEFINITION
-
-  // ... your schemas
-`;
-
-// ...
-
 // (you can also call the directive differently)
 const server = new ApolloServer({
-  typeDefs,
   resolvers,
   schemaDirectives: {
     proj: ApolloProjector,
@@ -50,7 +37,6 @@ const server = new ApolloServer({
 Suppose we have `User` model:
 ```js
 const typeDefs = gql`
-  directive @proj(...)  // directive not needed in simple example
   type User {
     firstName: String
     lastName: String
@@ -146,8 +132,6 @@ const resolvers = {
 // ...
 
 const typeDefs = gql`
-  directive @proj(...)
-
   type User {
 
     // will add 'username' to pojection
@@ -177,7 +161,6 @@ When using custom projection on field with object value in DB, you won't be able
 
 ```js
 const typeDefs = gql`
-  directive @proj(...)
 
   type User {
     username: String
