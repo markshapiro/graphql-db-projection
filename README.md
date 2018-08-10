@@ -245,7 +245,7 @@ requesting all these fields in GraphQL query will result in projection:
 
 ## Projection of subquery
 If your subquery in GraphQL needs additional fetch from DB to join into parent object, remember that you can call `makeProjection` on fieldASTs argument inside subquery resolver function.
-<br>suppose that we have array of Posts inside User:
+<br>Suppose that we have array of Posts inside User:
 ```js
 
 const typeDefs = gql`
