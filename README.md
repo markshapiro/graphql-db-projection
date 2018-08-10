@@ -117,7 +117,7 @@ const typeDefs = gql`
   }
 `;
 ```
-now makeProjection() result on query
+now `makeProjection` result on query
 ```js
 query ($id: String){
   user (id: $id){
