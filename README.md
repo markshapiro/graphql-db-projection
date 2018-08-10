@@ -27,9 +27,9 @@ import makeProjection, { ApolloProjector, IncludeAll, IgnoreField } from 'graphq
 const server = new ApolloServer({
   resolvers,
   schemaDirectives: {
-    proj: ApolloProjector,
     all: IncludeAll,
     ignore: IgnoreField,
+    proj: ApolloProjector,
   }
 });
 
