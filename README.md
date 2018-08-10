@@ -21,19 +21,21 @@ $ npm i -S graphql-db-projection
 Prepare helping directive if you intend to use custom projections:
 
 ```js
-import makeProjection, { ApolloProjector } from 'graphql-db-projection';
+import makeProjection, { ApolloProjector, IncludeAll, IgnoreField } from 'graphql-db-projection';
 
-// (you can also call the directive differently)
+// we need to include 3 directives: (you can call them differently)
 const server = new ApolloServer({
   resolvers,
   schemaDirectives: {
     proj: ApolloProjector,
+    all: IncludeAll,
+    ignore: IgnoreField,
   }
 });
 
 ```
 
-## Simple Usage
+## Simple Example
 Suppose we have `User` model:
 ```js
 const typeDefs = gql`
@@ -102,6 +104,53 @@ const resolvers = {
   }
 }
 ```
+## Include automatically all nested fields
+To automatically include all nested fields of object use `@all` directive:
+```js 
+const typeDefs = gql`
+  type User {
+    username: String
+    address: Address @all
+  }
+  
+  type Address {
+    city: String
+    postalCode: String
+  }
+`;
+```
+now makeProjection() result on query
+```js
+query ($id: String){
+  user (id: $id){
+    firstName
+    address {
+      city
+      street
+    }
+  }
+}
+```
+will be:
+```js
+{
+  firstName: 1,
+  address: 1
+}
+```
+
+## Ignore projection
+To remove field from projection use `@ignore` directive:
+```js 
+const typeDefs = gql`
+  type User {
+    firstName: String
+    lastName: String @ignore
+    address: Address @ignore
+  }
+`;
+```
+the result when requesting all fields will be just `{ firstName: 1 }`
 
 ## Custom Projections
 If resolve field function maps to field with different name, or if it calculates value based on multiple fields from DB, then pass the critical DB field or their array through `projection` or `projections` parameter respectively. Pass [] to not to ask for any fields.
@@ -156,7 +205,7 @@ requesting all these fields in GraphQL query will result in projection:
 }
 ```
 
-## True Name of Field in DB
+## Name of Field in DB
 When using custom projection on field with object value in DB, you won't be able to make inner projections of that object, it will just ask for `<field name>: 1`, to fix it use `nameInDB`:
 
 ```js
