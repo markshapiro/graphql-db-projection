@@ -146,14 +146,15 @@ const typeDefs = gql`
   type User {
     firstName: String
     lastName: String @ignore
+    username: String
     address: Address @ignore
   }
 `;
 ```
-the result when requesting all fields will be just `{ firstName: 1 }`
+the result when requesting all fields will be just `{ firstName: 1, username: 1 }`
 
 ## Custom Projections
-If resolve field function maps to field with different name, or if it calculates value based on multiple fields from DB, then pass the critical DB field or their array through `projection` or `projections` parameter respectively. Pass [] to not to ask for any fields.
+If resolve function of GraphQL field uses multiple DB fields to calculate the value, use `@proj(projection: <field in db>)` or `@proj(projections: [<field in db>, ...])` to specify absolute paths of fields you need:
 
 ```js
 const resolvers = {
@@ -161,20 +162,11 @@ const resolvers = {
   // ...
 
   User: {
-    // translated from username field from db
+    // displayName is calculated from username in DB
     displayName: user => user.username,
-    // calculated from gender, firstName, lastName from DB
+    
+    // fullName is calculated from gender, firstName, lastName in DB
     fullName: user => `${user.gender ? 'Mr.' : 'Mrs.'} ${user.firstName} ${user.lastName}`,
-    // suppose Posts of User are in different DB collection/table
-    posts: (user, args, ctx, postsFieldASTs) => {
-
-      // you can make new isolated projection only for User's Posts fetch
-      // based on Post's GraphQL subquery
-      const projectionOfPost = makeProjection(postsFieldASTs);
-      const mongoProjection = toMongoProjection(projectionOfPost)
-      return db.collection('posts')
-          .find({ postedBy: user.id }, mongoProjection).toArray();
-    },
   },
 };
 
@@ -183,14 +175,11 @@ const resolvers = {
 const typeDefs = gql`
   type User {
 
-    // will add 'username' to pojection
+    // will add username to pojection
     displayName: String @proj(projection: "username")
 
-    // will add 'gender', 'firstName' and 'lastName' to projection
+    // will add gender, firstName and lastName to projection
     fullName: String @proj(projections: ["gender", "firstName", "lastName"])
-
-    // posts of user, suppose fetched from different table/collection
-    posts: [PostType] @proj(projections: [])
   }
 `;
 ```
@@ -201,12 +190,11 @@ requesting all these fields in GraphQL query will result in projection:
   gender: 1,
   firstName: 1,
   lastName: 1
-  // but not posts as we explicitly omitted them because they are located in different collection
 }
 ```
 
-## Name of Field in DB
-When using custom projection on field with object value in DB, you won't be able to make inner projections of that object, it will just ask for `<field name>: 1`, to fix it use `nameInDB`:
+## Name of Field in DB called differently
+Custom projections specify absolute paths inside nested project, but don't do recursion on the nested fields like by default. If you want to continue make projections recursively into nested object when onlt the field is called differently in DB, do `@proj(nameInDB: <field name in db>)`:
 
 ```js
 const typeDefs = gql`
@@ -215,7 +203,7 @@ const typeDefs = gql`
     username: String
 
     // stored as 'location' object in DB
-    address: Address @proj(dbName: "location")
+    address: Address @proj(nameInDB: "location")
   }
   
   type Address {
