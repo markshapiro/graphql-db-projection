@@ -92,8 +92,6 @@ now you can use it to project fields for db, for example for mongoDB:
 ```js
 import { toMongoProjection } from 'graphql-db-projection';
 
-// ...
-
 const resolvers = {
   Query: {
     users: (obj, args, request, fieldASTs) => {
@@ -174,8 +172,6 @@ const typeDefs = gql`
   }
 `;
 
-// ...
-
 const resolvers = {
   User: {
     // displayName is calculated from username in DB
@@ -223,8 +219,6 @@ const typeDefs = gql`
   }
 `;
 
-// ...
-
 const resolvers = {
   Query: {
     users: (obj, args, request, fieldASTs) => {
@@ -248,3 +242,32 @@ requesting all these fields in GraphQL query will result in projection:
   }
 }
 ```
+
+## Projection of subquery
+If your subquery in GraphQL needs additional fetch from DB to join into parent object, remember that you can call `makeProjection` on fieldASTs argument inside subquery resolver function.
+<br>suppose that we have array of Posts inside User:
+```js
+
+const typeDefs = gql`
+  type User {
+    # suppose posts are located in different collection/table, this is why we dont need to project that field in User
+    posts: [PostType] @ignore
+  }
+`;
+
+const resolvers = {
+  User: {
+    // suppose Posts of User are in different DB collection/table
+    posts: (user, args, ctx, postsFieldASTs) => {
+
+      // you can make new isolated projection only for User's Posts fetch
+      // based on Post's GraphQL subquery
+      const projectionOfPost = makeProjection(postsFieldASTs);
+      const mongoProjection = toMongoProjection(projectionOfPost)
+      return db.collection('posts')
+          .find({ postedBy: user.id }, mongoProjection).toArray();
+    },
+  },
+};
+```
+
