@@ -27,7 +27,7 @@ const typeDefs = gql`
   directive @proj(
     projection: String,
     projections: [String],
-    trueName: String
+    nameInDB: String
   ) on FIELD_DEFINITION
 
   // ... your schemas
@@ -151,10 +151,10 @@ const typeDefs = gql`
   type User {
 
     // will add 'username' to pojection
-    displayName: String @proj(projection: 'username')
+    displayName: String @proj(projection: "username")
 
     // will add 'gender', 'firstName' and 'lastName' to projection
-    fullName: String @proj(projections: ['gender', 'firstName', 'lastName'])
+    fullName: String @proj(projections: ["gender", "firstName", "lastName"])
 
     // posts of user, suppose fetched from different table/collection
     posts: [PostType] @proj(projections: [])
@@ -173,7 +173,7 @@ requesting all these fields in GraphQL query will result in projection:
 ```
 
 ## True Name of Field in DB
-When using custom projection on field with object value in DB, you won't be able to make inner projections of that object, it will just ask for `<field name>: 1`, to fix it use `trueName`:
+When using custom projection on field with object value in DB, you won't be able to make inner projections of that object, it will just ask for `<field name>: 1`, to fix it use `nameInDB`:
 
 ```js
 const typeDefs = gql`
@@ -183,7 +183,7 @@ const typeDefs = gql`
     username: String
 
     // stored as 'location' object in DB
-    address: Address @proj(trueName: 'location')
+    address: Address @proj(dbName: "location")
   }
   
   type Address {

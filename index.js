@@ -93,8 +93,8 @@ export default function projector(
         });
         return;
       }
-      if (field.trueName) {
-        fieldName = field.trueName;
+      if (field.nameInDB) {
+        fieldName = field.nameInDB;
       }
       // if complex type
       if (selection.selectionSet) {
@@ -134,13 +134,27 @@ function toMongoProjection(projection) {
 
 class ApolloProjector extends SchemaDirectiveVisitor {
   visitFieldDefinition(field) {
-    const { projection, projections, trueName } = this.args;
+    const { projection, projections, nameInDB } = this.args;
     field.projection = projection || projections; // eslint-disable-line
-    field.trueName = trueName;  // eslint-disable-line
+    field.nameInDB = nameInDB;  // eslint-disable-line
+  }
+}
+
+class IncludeAll extends SchemaDirectiveVisitor {
+  visitFieldDefinition(field) {
+    field.projection = field.name;
+  }
+}
+
+class IgnoreField extends SchemaDirectiveVisitor {
+  visitFieldDefinition(field) {
+    field.projection = [];
   }
 }
 
 export {
   toMongoProjection,
   ApolloProjector,
+  IncludeAll,
+  IgnoreField,
 };
