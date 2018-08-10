@@ -258,7 +258,6 @@ const typeDefs = gql`
 
 const resolvers = {
   User: {
-    // suppose Posts of User are in different DB collection/table
     posts: (user, args, ctx, postsFieldASTs) => {
 
       // you can make new isolated projection only for User's Posts fetch
