@@ -205,7 +205,7 @@ requesting all these fields in GraphQL query will result in projection:
 ```
 
 ## Name of Field in DB called differently
-Custom projections specify absolute paths inside nested project, but don't do recursion on the nested fields like you have by default. If only the name of field is called differently in DB but you want to continue project the nested fields, use `@proj(nameInDB: <field name in db>)`:
+Custom projections specify absolute paths inside nested project, but don't do recursion on the nested fields like you have by default. If only the name of field is called differently in DB but you want to project the nested fields recursively, use `@proj(nameInDB: <field name in db>)`:
 
 ```js
 const typeDefs = gql`
