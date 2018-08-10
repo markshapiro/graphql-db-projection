@@ -252,7 +252,7 @@ If your subquery in GraphQL needs additional fetch from DB to join into parent o
 const typeDefs = gql`
   type User {
     # suppose posts are located in different collection/table,
-    # this is why we dont need to project that field in User
+    # this is why we don't need to project that field in User
     posts: [PostType] @ignore
   }
 `;
