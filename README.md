@@ -158,7 +158,7 @@ If resolve function of GraphQL field uses multiple DB fields to calculate the va
 const typeDefs = gql`
   type User {
 
-    // will add username to pojection
+    // will add username to projection
     displayName: String @proj(projection: "username")
 
     // will add gender, firstName and lastName to projection
@@ -168,6 +168,7 @@ const typeDefs = gql`
   }
   
   type Address {
+    country: String
     fullAddress: @proj(projections: ["city", "postalCode"])
   }
 `;
@@ -194,6 +195,7 @@ requesting all these fields in GraphQL query will result in projection:
   firstName: 1,
   lastName: 1,
   addess: {
+    country: 1,
     city: 1,
     postalCode: 1
   }
@@ -244,8 +246,7 @@ requesting all these fields in GraphQL query will result in projection:
 ```
 
 ## Projection of subquery
-If your subquery in GraphQL needs additional fetch from DB to join into parent object, remember that you can call `makeProjection` on fieldASTs argument inside subquery resolver function.
-<br>Suppose we have array of Posts inside User:
+If your subquery in GraphQL needs additional fetch from DB to join into parent object, remember that you can call `makeProjection` on fieldASTs argument inside subquery resolver function. Suppose we have array of Posts inside User:
 ```js
 
 const typeDefs = gql`
