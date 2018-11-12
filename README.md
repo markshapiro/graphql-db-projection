@@ -42,9 +42,9 @@ const server = new ApolloServer({
   typeDefs,
   resolvers,
   schemaDirectives: {
-    all: IncludeAll,
-    ignore: IgnoreField,
     proj: ApolloProjector,
+    all: IncludeAll,
+    ignore: IgnoreField
   }
 });
 
