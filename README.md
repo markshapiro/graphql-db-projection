@@ -21,7 +21,7 @@ $ npm i -S graphql-db-projection
 Prepare directives you intend to use:
 
 ```js
-import makeProjection, { ApolloProjector, IncludeAll, IgnoreField } from 'graphql-db-projection';
+import { ApolloProjector, IncludeAll, IgnoreField } from 'graphql-db-projection';
 
 const typeDefs = gql`
   directive @proj(
