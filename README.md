@@ -23,8 +23,23 @@ Prepare helping directive if you intend to use custom projections:
 ```js
 import makeProjection, { ApolloProjector, IncludeAll, IgnoreField } from 'graphql-db-projection';
 
-// we need to include 3 directives: (you can call them differently)
+const typeDefs = gql`
+  directive @proj(
+    projection: String,
+    projections: [String],
+    nameInDB: String
+  ) on FIELD_DEFINITION
+  directive @all on FIELD_DEFINITION
+  directive @ignore on FIELD_DEFINITION
+
+  // ... your schemas
+`;
+
+// ...
+
+// (you can also call the directive differently)
 const server = new ApolloServer({
+  typeDefs,
   resolvers,
   schemaDirectives: {
     all: IncludeAll,
