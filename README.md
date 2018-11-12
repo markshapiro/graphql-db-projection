@@ -18,7 +18,7 @@ $ npm i -S graphql-db-projection
 ```
 
 ## Setup
-Prepare helping directive if you intend to use custom projections:
+Prepare directives you intend to use:
 
 ```js
 import makeProjection, { ApolloProjector, IncludeAll, IgnoreField } from 'graphql-db-projection';
