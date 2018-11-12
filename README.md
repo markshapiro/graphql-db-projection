@@ -37,7 +37,7 @@ const typeDefs = gql`
 
 // ...
 
-// (you can also call the directive differently)
+// (you can also call the directives differently)
 const server = new ApolloServer({
   typeDefs,
   resolvers,
