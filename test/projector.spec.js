@@ -172,4 +172,65 @@ describe('projector', () => {
       address: 1,
     });
   });
+
+  it('should support inline fragments', () => {
+    const projection = boundProjector({
+      schema,
+      ...argsFromQuery(ActorType, `
+      {
+        actor(id: 1) {
+          id
+          ... on Actor {
+            name
+          }
+          ... on ActorInterface {
+            address
+          }
+        }
+      }
+      interface ActorInterface {
+        name: String
+        address: String
+      }
+    `),
+    });
+
+    expect(projection).to.deep.eql({
+      id: 1,
+      firstName: 1,
+      lastName: 1,
+      address: 1,
+    });
+  });
+
+  it('should support inline fragments with regular fragment', () => {
+    const projection = boundProjector({
+      schema,
+      ...argsFromQuery(ActorType, `
+      {
+        actor(id: 1) {
+          id
+          ... on Intf1 {
+            ...ActorProps
+          }
+        }
+      }
+      fragment ActorProps on Actor {
+        name
+        address
+      }
+      interface ActorInterface {
+        name: String
+        address: String
+      }
+    `),
+    });
+
+    expect(projection).to.deep.eql({
+      id: 1,
+      firstName: 1,
+      lastName: 1,
+      address: 1,
+    });
+  });
 });

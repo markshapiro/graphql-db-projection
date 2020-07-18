@@ -49,6 +49,11 @@ function replaceFragments(
     if (selection.kind === 'Field') {
       return [...accumulator, selection];
     }
+
+    if(selection.kind === 'InlineFragment'){
+      return [...accumulator, ...replaceFragments(selection.selectionSet, fragments)]
+    }
+
     if (selection.kind !== 'FragmentSpread') {
       // todo: Figure out what we need to do to handle this case
       throw new Error(`Unable to handle SelectionNode of type '${selection.kind}'`);
