@@ -180,10 +180,8 @@ describe('projector', () => {
       {
         actor(id: 1) {
           id
-          ... on Actor {
-            name
-          }
           ... on ActorInterface {
+            name
             address
           }
         }
