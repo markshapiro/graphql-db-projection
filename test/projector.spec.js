@@ -208,7 +208,7 @@ describe('projector', () => {
       {
         actor(id: 1) {
           id
-          ... on Intf1 {
+          ... on ActorInterface {
             ...ActorProps
           }
         }
